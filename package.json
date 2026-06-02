@@ -1,0 +1,23 @@
+{
+  "name": "shipyard",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "build-worker": "npm run dev --workspace=build-worker",
+    "reverse-proxy": "npm run dev --workspace=reverse-proxy",
+    "dev": "node scripts/shipyard.js up dev",
+    "prod": "node scripts/shipyard.js up prod",
+    "down": "node scripts/shipyard.js down dev",
+    "restart": "node scripts/shipyard.js restart dev",
+    "reset": "node scripts/shipyard.js reset dev",
+    "logs": "node scripts/shipyard.js logs dev",
+    "ps": "node scripts/shipyard.js ps dev",
+    "cleanup": "node scripts/shipyard.js cleanup"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+}

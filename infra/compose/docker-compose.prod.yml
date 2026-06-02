@@ -1,0 +1,9 @@
+services:
+  api-server:
+    image: api-server:prod
+  build-worker:
+    image: build-worker:prod
+  frontend:
+    image: frontend:prod
+  reverse-proxy:
+    image: reverse-proxy:prod

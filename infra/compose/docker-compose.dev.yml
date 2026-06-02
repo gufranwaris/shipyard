@@ -1,0 +1,22 @@
+# services:
+#   api-server:
+#     image: api-server:dev
+#   build-worker:
+#     image: build-worker:dev
+#   frontend:
+#     image: frontend:dev
+#   reverse-proxy:
+#     image: reverse-proxy:dev
+services:
+  shipyard-redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+  shipyard-postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: shipyard
+      POSTGRES_PASSWORD: shipyard
+      POSTGRES_DB: shipyard
+    ports:
+      - "5432:5432"
