@@ -10,65 +10,45 @@ import { resolveDeploymentTarget } from "../services/deployment-resolver.js";
 
 const deploymentRouter = Router();
 
-deploymentRouter.get("/:deploymentId", (req, res) => {
- 
-  const filePath = path.resolve(
+deploymentRouter.get(/.*/, (req, res) => {
+
+  const deploymentId = req.deploymentId!;
+  const artifactRoot = path.resolve(
     ROOT_STORAGE!,
     "artifacts",
-    req.params.deploymentId,
-    "index.html"
+    deploymentId
   );
-  console.log(filePath);
-  console.log(
-    "Exists:",
-    fs.existsSync(filePath)
-  );
-  // const resolution = resolveDeploymentTarget(req.params.deploymentId);
-  res.sendFile(filePath, (err) => {
-    if (err) {
-      console.error(err);
-      res.status(err.status || 500).end();
-    }
-  });
-  // if (!resolution) {
-  //   res.status(502).json({ error: "Unable to resolve deployment target" });
-  //   return;
-  // }
 
-  // const fetchInit: any = {
-  //   method: req.method,
-  //   headers: req.headers,
-  // };
+  let requestedFile: string;
 
-  // if (req.method !== "GET" && req.method !== "HEAD") {
-  //   fetchInit.body = req;
-  //   fetchInit.duplex = "half";
-  // }
+  if (req.path === "/") {
+    requestedFile = path.join(
+      artifactRoot,
+      "index.html"
+    );
+  } else {
+    requestedFile = path.join(
+      artifactRoot,
+      req.path
+    );
+  }
 
-  // const upstreamResponse = await fetch(resolution.targetUrl, fetchInit);
+  // Prevent Directory Traversal
+  // Bad actor: GET /../../../package.json
+  // Without protection: storage/artifacts/abc123/../../../package.json
+  // could escape the deployment folder.
 
-  // res.status(upstreamResponse.status);
+  if (!requestedFile.startsWith(artifactRoot)) {
+    return res.status(403).end();
+  }
 
-  // upstreamResponse.headers.forEach((value, key) => {
-  //   res.setHeader(key, value);
-  // });
-
-  // if (!upstreamResponse.body) {
-  //   res.end();
-  //   return;
-  // }
-
-  // const reader = upstreamResponse.body.getReader();
-
-  // while (true) {
-  //   const { done, value } = await reader.read();
-  //   if (done) {
-  //     break;
-  //   }
-  //   res.write(Buffer.from(value));
-  // }
-
-  // res.end();
+  // File Existence Check
+  if (!fs.existsSync(requestedFile)) {
+    return res.status(404).json({
+      error: "File not found"
+    });
+  }
+  res.sendFile(requestedFile);
 });
 
 export default deploymentRouter;
