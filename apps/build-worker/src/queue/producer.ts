@@ -1,20 +1,29 @@
-import { Queue } from 'bullmq';
+import amqp from "amqplib";
+import env from "../config/env";
 
-async function producer() {
-
-  const queue = new Queue('deployments', {
-    connection: {
-      host: '127.0.0.1',
-      port: 6379,
-    },
-  });
-
-  const addJob = async (data: any) => {
-    await queue.add('deploy', data);
-  }
-
-  // Example usage
-  await addJob({ deploymentId: '12345', gitUrl: 'https://github.com/Gufranwaris/vite-calculator.git' });
-  await queue.close();
+export interface DeploymentBuildJob {
+  deploymentId: string;
+  projectId?: number;
+  gitUrl: string;
 }
-producer().catch(console.error);
+
+export async function publishDeploymentBuildJob(job: DeploymentBuildJob) {
+  const connection = await amqp.connect(env.rabbitmqUrl);
+  const channel = await connection.createChannel();
+
+  try {
+    await channel.assertExchange(env.rabbitmqExchange, "topic", { durable: true });
+    channel.publish(
+      env.rabbitmqExchange,
+      env.rabbitmqBuildRoutingKey,
+      Buffer.from(JSON.stringify(job)),
+      {
+        contentType: "application/json",
+        persistent: true,
+      }
+    );
+  } finally {
+    await channel.close();
+    await connection.close();
+  }
+}

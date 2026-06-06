@@ -8,12 +8,24 @@
 #   reverse-proxy:
 #     image: reverse-proxy:dev
 services:
+  shipyard-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: shipyard-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: shipyard
+      RABBITMQ_DEFAULT_PASS: shipyard
+
   shipyard-redis:
     image: redis:7
+    container_name: shipyard-redis
     ports:
       - "6379:6379"
   shipyard-postgres:
     image: postgres:16
+    container_name: shipyard-postgres
     environment:
       POSTGRES_USER: shipyard
       POSTGRES_PASSWORD: shipyard
