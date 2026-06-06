@@ -1,5 +1,6 @@
 package com.shipyard.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -7,11 +8,16 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import java.time.LocalDateTime;
 
-import java.nio.file.FileStore;
-import java.time.Instant;
+import org.hibernate.annotations.CreationTimestamp;
 
-@Entity @Getter @Setter @AllArgsConstructor @NoArgsConstructor @Builder
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class ProjectEntity {
 
     @Id
@@ -25,5 +31,7 @@ public class ProjectEntity {
     @NotBlank(message = "Git URL is required")
     private String gitUrl;
 
-    private Instant createdAt;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 }
