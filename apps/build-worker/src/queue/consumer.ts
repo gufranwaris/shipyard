@@ -3,40 +3,40 @@ import env from "../config/env";
 import { processDeployment } from "../deployment/deployment.service";
 
 interface DeploymentBuildMessage {
-  deploymentId?: string;
-  projectId?: number;
-  gitUrl?: string;
+  deploymentId: string;
 }
 
-function parseDeploymentBuildMessage(message: ConsumeMessage): { deploymentId: string; gitUrl: string } {
-  const payload = JSON.parse(message.content.toString()) as DeploymentBuildMessage;
-
-  if (!payload.gitUrl) {
-    throw new Error("Build job is missing gitUrl");
+function parseDeploymentBuildMessage(message: ConsumeMessage): DeploymentBuildMessage {
+  const content = message.content.toString();
+  let payload: any;
+  try {
+    payload = JSON.parse(content);
+  } catch (e) {
+    throw new Error(`Invalid JSON content: ${content}`);
   }
 
-  const deploymentId = payload.deploymentId || String(payload.projectId || "");
-  if (!deploymentId) {
-    throw new Error("Build job is missing deploymentId");
+  if (!payload.deploymentId) {
+    throw new Error(`Build job is missing required fields. Raw content: ${content}`);
   }
 
   return {
-    deploymentId,
-    gitUrl: payload.gitUrl,
+    deploymentId: payload.deploymentId.toString(),
   };
 }
 
 export const startDeploymentWorker = async () => {
+  console.log("Connecting to RabbitMQ at", env.rabbitmqUrl);
   const connection = await amqp.connect(env.rabbitmqUrl);
   const channel = await connection.createChannel();
 
-  await channel.assertExchange(env.rabbitmqExchange, "topic", { durable: true });
+  await channel.assertExchange(env.rabbitmqExchange, "direct", { durable: true });
   await channel.assertQueue(env.rabbitmqBuildQueue, { durable: true });
   await channel.bindQueue(
     env.rabbitmqBuildQueue,
     env.rabbitmqExchange,
     env.rabbitmqBuildRoutingKey
   );
+  
   await channel.prefetch(env.workerConcurrency);
 
   console.log("build-worker consuming RabbitMQ queue", {
@@ -51,6 +51,9 @@ export const startDeploymentWorker = async () => {
       return;
     }
 
+    const content = message.content.toString();
+    console.log("Received message from RabbitMQ:", content);
+
     try {
       const job = parseDeploymentBuildMessage(message);
       console.log("Processing deployment build job:", job);
@@ -59,7 +62,8 @@ export const startDeploymentWorker = async () => {
       console.log("Deployment build job completed:", job.deploymentId);
     } catch (error) {
       console.error("Deployment build job failed:", error);
-      channel.nack(message, false, true);
+      // Don't requue if it's a parsing error to avoid infinite loops
+      channel.nack(message, false, false);
     }
   });
 

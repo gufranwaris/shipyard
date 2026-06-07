@@ -11,7 +11,8 @@ import com.shipyard.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class ProjectServiceImpl {
+@Service
+public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
 

@@ -31,4 +31,4 @@ services:
       POSTGRES_PASSWORD: shipyard
       POSTGRES_DB: shipyard
     ports:
-      - "5432:5432"
+      - "5433:5432"

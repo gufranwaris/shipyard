@@ -2,10 +2,7 @@ package com.shipyard.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.shipyard.dto.CreateDeploymentRequest;
 import com.shipyard.dto.DeploymentResponse;
@@ -20,10 +17,10 @@ public class DeploymentController {
     
     private final DeploymentService DeploymentService;
 
-    @PostMapping
+    @PostMapping("/projects")
     public ResponseEntity<DeploymentResponse> createDeployment(
-            @RequestBody CreateDeploymentRequest request) {
-        DeploymentResponse response = DeploymentService.deploy(request);
+            @RequestParam("projectId") long projectId) {
+        DeploymentResponse response = DeploymentService.deploy(projectId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
