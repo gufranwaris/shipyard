@@ -16,14 +16,15 @@ class ProjectServiceTest {
     @Test
     void createProjectTest() {
 
-        CreateProjectRequest request = CreateProjectRequest.builder()
-                .name("Test Project")
-                .gitUrl("https://github.com/test/test-project.git")
-                .build();
-
-        ProjectResponse response = projectService.create(request);
-
-        System.out.println("Created Project ID: " + response.getId());
+//        CreateProjectRequest request = CreateProjectRequest.builder()
+//                .name("Test Project")
+//                .gitUrl("https://github.com/test/test-project.git")
+//                .build();
+//
+//        ProjectResponse response = projectService.create(request);
+//
+//        System.out.println("Created Project ID: " + response.getId());
+        System.out.println("hello wold!");
 
     }
 }

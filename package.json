@@ -16,8 +16,5 @@
     "logs": "node scripts/shipyard.js logs dev",
     "ps": "node scripts/shipyard.js ps dev",
     "cleanup": "node scripts/shipyard.js cleanup"
-  },
-  "dependencies": {
-    "dotenv": "^17.4.2"
   }
 }

@@ -16,18 +16,18 @@ public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
 
-    public ProjectResponse create(CreateProjectRequest request) {
-        System.out.println("Creating project with name: " + request.getName());
-        ;
+    public ProjectResponse create(CreateProjectRequest request){
+        System.out.println("Creating project with name: " + request.getName());;
         ProjectEntity project = ProjectEntity.builder()
                 .name(request.getName())
                 .gitUrl(request.getGitUrl())
                 .build();
         ProjectEntity savedProjectEntity = projectRepository.save(project);
-        return ProjectResponse.builder()
-                .id(savedProjectEntity.getId())
-                .name(savedProjectEntity.getName())
-                .gitUrl(savedProjectEntity.getGitUrl())
-                .build();
+        return new ProjectResponse(
+                savedProjectEntity.getId(),
+                savedProjectEntity.getName(),
+                savedProjectEntity.getGitUrl(),
+                savedProjectEntity.getCreatedAt()
+        );
     }
 }

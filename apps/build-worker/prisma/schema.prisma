@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model deployment_entity {
+  id             BigInt          @id @default(autoincrement())
+  created_at     DateTime?       @db.Timestamp(6)
+  deployment_url String?         @db.VarChar(255)
+  public_id      String?         @db.VarChar(255)
+  status         String?         @db.VarChar(255)
+  project_id     BigInt?         @unique(map: "ukau931wxhpeypvojxg4rb1oqey")
+  project_entity project_entity? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkcynt33o4ud46pyqn7lxc6q2d8")
+}
+
+model project_entity {
+  id                BigInt             @id @default(autoincrement())
+  created_at        DateTime?          @db.Timestamp(6)
+  git_url           String             @db.VarChar(255)
+  name              String             @db.VarChar(255)
+  deployment_entity deployment_entity?
+}

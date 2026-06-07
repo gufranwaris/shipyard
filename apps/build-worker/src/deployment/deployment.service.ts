@@ -3,16 +3,22 @@ import fs from "fs-extra";
 import path from "path";
 import { getBuilder } from "../builders";
 import { getArtifactPath, getBuildSourcePath } from "../storage/paths";
+import { findDeploymentById } from "./deployment.repository";
 
 interface DeploymentJob {
   deploymentId: string;
-  gitUrl: string;
-  // other relevant fields
 }
 export async function processDeployment(job: DeploymentJob) {
-  const { deploymentId, gitUrl } = job;
-  const sourcePath = getBuildSourcePath(deploymentId);
-  const artifactPath = getArtifactPath(deploymentId);
+  const { deploymentId } = job;
+  const deployment = await findDeploymentById(BigInt(deploymentId));
+  console.log("Fetched deployment from database:", deployment);
+  if (!deployment) {
+    throw new Error(`Deployment not found for ID: ${deploymentId}`);
+  }
+  const gitUrl = deployment?.project_entity?.git_url;
+  const public_id = deployment.public_id;
+  const sourcePath = getBuildSourcePath(public_id);
+  const artifactPath = getArtifactPath(public_id);
 
   try {
     await cloneRepository(gitUrl, sourcePath);

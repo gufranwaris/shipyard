@@ -1,4 +1,13 @@
 services:
+  shipyard-rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: shipyard
+      RABBITMQ_DEFAULT_PASS: shipyard
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   api-server:
     image: api-server:prod
   build-worker:
